@@ -27,6 +27,7 @@ variables:
         icapi_extractors_client_id: ${ICAPI_EXTRACTORS_CLIENT_ID}
         icapi_extractors_client_secret: ${ICAPI_EXTRACTORS_CLIENT_SECRET}
 
+
       use_cases:
         oee:
           data_pipeline_oee_source_id: ${DATA_PIPELINE_OEE_SOURCE_ID}
