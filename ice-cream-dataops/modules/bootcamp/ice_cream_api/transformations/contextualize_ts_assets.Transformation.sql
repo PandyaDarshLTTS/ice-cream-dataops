@@ -13,8 +13,8 @@ with timeseries as (
 select
   timeseries.externalId,
   collect_set(node_reference("icapi_dm_space", assets.externalId)) as assets,
-  timeseries.isStep,
-  timeseries.type
+  max(timeseries.isStep) as isStep,
+  max(timeseries.type) as type
 from
   timeseries
 left join
@@ -23,6 +23,4 @@ ON
   split_part(timeseries.externalId, ":", 1) = assets.externalId
   and assets.space = "icapi_dm_space"
 group by
-  timeseries.externalId,
-  timeseries.isStep,
-  timeseries.type
+  timeseries.externalId
