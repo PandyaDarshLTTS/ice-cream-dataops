@@ -1,8 +1,8 @@
 select
   timeseries.externalId,
   collect_set(node_reference("icapi_dm_space", assets.externalId)) as assets,
-  timeseries.isStep,
-  timeseries.type
+  max(timeseries.isStep) as isStep,
+  max(timeseries.type) as type
 from
   cdf_data_models("cdf_cdm", "CogniteCore", "v1", "CogniteTimeSeries") as timeseries
 left join
@@ -13,6 +13,4 @@ ON
 where
   timeseries.space = "icapi_dm_space"
 group by
-  timeseries.externalId,
-  timeseries.isStep,
-  timeseries.type
+  timeseries.externalId
