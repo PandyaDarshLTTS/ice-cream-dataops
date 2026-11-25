@@ -1,7 +1,6 @@
 with timeseries as (
   select
     externalId,
-    space,
     max(isStep) as isStep,
     max(type) as type
   from
@@ -9,22 +8,37 @@ with timeseries as (
   where
     space = "icapi_dm_space"
   group by
-    externalId,
-    space
+    externalId
+),
+asset_matches as (
+  select
+    timeseries.externalId as timeseriesExternalId,
+    node_reference("icapi_dm_space", assets.externalId) as asset
+  from
+    timeseries
+  inner join
+    cdf_data_models("cdf_cdm", "CogniteCore", "v1", "CogniteAsset") as assets
+  ON
+    split_part(timeseries.externalId, ":", 1) = assets.externalId
+    and assets.space = "icapi_dm_space"
+),
+asset_references as (
+  select
+    timeseriesExternalId,
+    collect_set(asset) as assets
+  from
+    asset_matches
+  group by
+    timeseriesExternalId
 )
 select
   timeseries.externalId,
-  collect_set(node_reference("icapi_dm_space", assets.externalId)) as assets,
-  max(timeseries.isStep) as isStep,
-  max(timeseries.type) as type,
-  timeseries.space
+  asset_references.assets,
+  timeseries.isStep,
+  timeseries.type
 from
   timeseries
 left join
-  cdf_data_models("cdf_cdm", "CogniteCore", "v1", "CogniteAsset") as assets
+  asset_references
 ON
-  split_part(timeseries.externalId, ":", 1) = assets.externalId
-  and assets.space = "icapi_dm_space"
-group by
-  timeseries.externalId,
-  timeseries.space
+  timeseries.externalId = asset_references.timeseriesExternalId
