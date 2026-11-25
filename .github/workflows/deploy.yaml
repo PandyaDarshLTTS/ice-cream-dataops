@@ -53,6 +53,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Validate Toolkit Authorization
+        run: |
+          if [ -z "$IDP_CLIENT_ID" ]; then
+            echo "::error::IDP_CLIENT_ID is empty. Configure it as a variable for the selected GitHub Environment."
+            exit 1
+          fi
+          if [ -z "$IDP_CLIENT_SECRET" ]; then
+            echo "::error::IDP_CLIENT_SECRET is empty. Configure it as a secret for the selected GitHub Environment."
+            exit 1
+          fi
       - name: Verify and Update Toolkit Authorization
         run: yes | cdf auth verify
       - name: Build Toolkit Configurations
